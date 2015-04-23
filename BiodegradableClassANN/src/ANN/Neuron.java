@@ -13,7 +13,7 @@ public class Neuron {
     private static class Axon {
         private Neuron from, to;
         int weight;
-
+  
 
         Axon(Neuron from, Neuron to){
             this.from = from;
