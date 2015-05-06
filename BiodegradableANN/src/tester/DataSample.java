@@ -9,10 +9,12 @@ public class DataSample {
 
     ArrayList<Double> characteristics = new ArrayList<Double>();
     ArrayList<Double> solutions = new ArrayList<Double>();
+    int solutionSize;
 
     DataSample(ArrayList<Double> characteristics, ArrayList<Double> solutions){
-           this.characteristics = characteristics;
-           this.solutions = solutions;
+        this.characteristics = characteristics;
+        this.solutions = solutions;
+        this.solutionSize = this.solutions.size();
     }
 
 
@@ -20,5 +22,8 @@ public class DataSample {
         this.characteristics = characteristics;
     }
 
-
+    @Override
+    public String toString() {
+        return characteristics.toString() + "\n";
+    }
 }

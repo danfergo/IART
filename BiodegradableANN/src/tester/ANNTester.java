@@ -27,7 +27,7 @@ public class ANNTester {
 
     public void testNewDataSet(File file) throws IOException {
         //prepare data set
-        DataSet dataSet = DataSet.DataSetFromFile(file);
+        DataSet dataSet = DataSet.DataSetFromFile(file, 1);
         //train ann
 
         //test ann
@@ -48,7 +48,18 @@ public class ANNTester {
     }
 
     public static void main(String args[]){
-        new ANNTester();
+        //new ANNTester();
+        if (args.length != 1){
+            System.out.println("<File>");
+            return;
+        }
+        try {
+            DataSet dataSet = DataSet.DataSetFromFile(new File(args[0]), 1);
+            dataSet.generateRandomTrainingData(1.0/3);
+            System.out.println(dataSet.getTrainingSample());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 }
