@@ -4,7 +4,7 @@ import graph.DrawableGraph;
 
 import java.util.*;
 
-import tester.DataSet;
+import tester.DataSample;
 import util.Arrays;
 
 /**
@@ -52,28 +52,68 @@ public class NeuronalNetwork extends DrawableGraph<Neuron,Axon> {
         return nn;
     }
 
-
-    void feedForward(DataSet set){
-       /* Iterator<Double> setCharacteristicsIterator =  set.getCharacteristics().iterator();
-        Iterator<Neuron> inputNeuronsIterator =  getEndNodes().iterator();
-
-        while (inputNeuronsIterator.hasNext() && setCharacteristicsIterator.hasNext()){
-            inputNeuronsIterator.next().setValue(setCharacteristicsIterator.next());
-        }*/
+    void clean(){
+        for(Neuron neuron: getNodes()){
+            neuron.clean();
+        }
     }
 
-    ArrayList<Double> collectResults(){
-        ArrayList<Double> outputValues = new ArrayList<Double>();
-        Double output;
+
+    private void backPropagateError(DataSample sample){
+
+        Iterator<Double> sampleSolutionsIterator =  sample.getSolutions().iterator();
+        Iterator<Neuron> outputNeuronsIterator =  getEndNodes().iterator();
+
+        while (outputNeuronsIterator.hasNext() && sampleSolutionsIterator.hasNext()){
+            outputNeuronsIterator.next().setExpectedValue(sampleSolutionsIterator.next());
+        }
+
+
+        for (Neuron neuron : getStartNodes()){
+            neuron.backPropagateError();
+        }
+
+    }
+
+
+    void feedForward(DataSample sample){
+
+        clean();
+
+        Iterator<Double> sampleCharacteristicsIterator =  sample.getCharacteristics().iterator();
+        Iterator<Neuron> inputNeuronsIterator =  getStartNodes().iterator();
+
+        while (inputNeuronsIterator.hasNext() && sampleCharacteristicsIterator.hasNext()){
+            inputNeuronsIterator.next().setOutputValue(sampleCharacteristicsIterator.next());
+        }
 
         for(Neuron neuron: getEndNodes()){
-            output = neuron.getOutputValue();
-            if(output != null){
-                outputValues.add(neuron.getOutputValue());
-            }
+            neuron.getOutputValue();
+        }
+    }
+
+
+    ArrayList<Double> collectOutputValues(DataSample sample){
+        ArrayList<Double> outputValues = new ArrayList<Double>();
+
+        for(Neuron neuron: getEndNodes()){
+            outputValues.add(neuron.getOutputValue());
         }
 
         return outputValues;
+    }
+
+
+    void learn(DataSample sample){
+        feedForward(sample);
+        backPropagateError(sample);
+    }
+
+    DataSample answer(DataSample sample){
+        feedForward(sample);
+        DataSample ret = sample.clone();
+        collectOutputValues(ret);
+        return ret;
     }
 
     double performanceFunction(){

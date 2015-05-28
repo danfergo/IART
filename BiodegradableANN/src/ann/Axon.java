@@ -10,12 +10,14 @@ import java.awt.*;
  */
 public class Axon extends DrawableEdge<Neuron> {
 
+    double weight;
+
     public Axon(Neuron source, Neuron destination) {
         super(source, destination);
     }
 
     @Override
-    public double getThickness() {
-        return 0;
+    public double  getWeightValue(){
+        return weight;
     }
 }

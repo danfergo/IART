@@ -15,7 +15,7 @@ public abstract class DrawableEdge<N extends DrawableNode> extends  Edge<N>{
     public Color getColor(){
         return new Color(0, 0, 0,180);
     }
-    public abstract double  getThickness();
+    public abstract double  getWeightValue();
 
 
 }

@@ -16,7 +16,10 @@ public class ANNTester {
     MainWindow currentWindow = null;
 
     ANNTester(){
-        setANNLayout(new int[]{41,5,10,10,5,1});
+    }
+
+    public ANNTester(File file) throws IOException {
+        testNewDataSet(file);
     }
 
     public void setANNLayout(int [] neuronsPerLayer){
@@ -28,17 +31,19 @@ public class ANNTester {
     public void testNewDataSet(File file) throws IOException {
         //prepare data set
         DataSet dataSet = DataSet.DataSetFromFile(file, 1);
+        setANNLayout(new int[]{41,10,20,1});
+
         //train ann
 
         //test ann
 
     }
 
-    public void trainANN(){
+    public void trainANN(DataSet set){
 
     }
 
-    public void testANN(){
+    public void testANN(DataSet set){
 
     }
 
@@ -47,19 +52,18 @@ public class ANNTester {
         return ann;
     }
 
-    public static void main(String args[]){
-        //new ANNTester();
-        if (args.length != 1){
-            System.out.println("<File>");
-            return;
+    public static void main(String args[]) throws IOException {
+        if (args.length > 0){
+            new ANNTester(new File(args[0]));
         }
-        try {
+
+       /* try {
             DataSet dataSet = DataSet.DataSetFromFile(new File(args[0]), 1);
             dataSet.generateRandomTrainingData(1.0/3);
             System.out.println(dataSet.getTrainingSample());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        */
     }
 }

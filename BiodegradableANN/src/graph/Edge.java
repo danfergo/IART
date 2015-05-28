@@ -16,11 +16,11 @@ public class Edge<N extends Node> {
 
 
 
-    N getSource(){
+    public N getSource(){
         return source;
     }
 
-    N getDestination(){
+    public N getDestination(){
         return destination;
     }
 

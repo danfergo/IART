@@ -26,4 +26,16 @@ public class DataSample {
     public String toString() {
         return characteristics.toString() + "\n";
     }
+
+    public ArrayList<Double> getCharacteristics() {
+        return characteristics;
+    }
+    public ArrayList<Double> getSolutions() {
+        return characteristics;
+    }
+
+    @Override
+    public DataSample clone(){
+        return new DataSample((ArrayList<Double>)characteristics.clone(), new ArrayList<Double>());
+    }
 }
