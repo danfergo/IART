@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BiodegradableANN/BiodegradableANN.iml" filepath="$PROJECT_DIR$/BiodegradableANN/BiodegradableANN.iml" />
-      <module fileurl="file://$PROJECT_DIR$/IART.iml" filepath="$PROJECT_DIR$/IART.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BiodegradableANN.iml" filepath="$PROJECT_DIR$/BiodegradableANN.iml" />
     </modules>
   </component>
 </project>
