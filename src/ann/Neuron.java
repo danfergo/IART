@@ -2,6 +2,8 @@ package ann;
 
 import graph.DrawableNode;
 
+import java.awt.*;
+
 import static java.lang.Math.exp;
 
 /**
@@ -10,26 +12,43 @@ import static java.lang.Math.exp;
 public class Neuron extends DrawableNode<Axon> {
 
     Double outputValue = null;
-    Double error = null;
-
+    Double gradient = null;
+    public static Double step = 0.15;
     public Neuron(double x, double y){
        super(x,y);
     }
 
     void setOutputValue(double value){
-        this.outputValue = value;
+        this.outputValue = value ;
     }
 
     void setExpectedValue(double expectedValue){
-        this.error = transferenceFunctionDerivative(outputValue)*(expectedValue - outputValue);
+        this.gradient = transferenceFunctionDerivative(outputValue)*(expectedValue - outputValue);
     }
 
     void backPropagateError(){
-        this.error = transferenceFunctionDerivative(outputValue)*getErrorSum();
+        this.gradient = transferenceFunctionDerivative(outputValue == null ? 0 : outputValue) * getErrorSum();
+    }
+
+    double getGradient(){
+        if(this.gradient == null){
+            backPropagateError();
+        }
+        return this.gradient;
     }
 
 
-    double getOutputValue(){
+    public void updateWeights(){
+        double deltaWeight;
+        for(Axon axon : getArriving()){
+            deltaWeight = step*axon.getSource().getOutputValue()*getGradient()
+                   /* + 0.5*axon.getDeltaWeight()*/;
+            axon.updateWeight(deltaWeight);
+            axon.setDeltaWeight(deltaWeight);
+        }
+    }
+
+    public double getOutputValue() {
         if(outputValue == null){
             outputValue = transferenceFunction(getInputSum());
         }
@@ -37,8 +56,8 @@ public class Neuron extends DrawableNode<Axon> {
     }
 
     double getInputSum(){
-        double sum = 0;
-        for(Axon axon : this.getArriving()){
+        double sum = 0.0f;
+        for(Axon axon : getArriving()){
             sum += axon.getWeightValue() * axon.getSource().getOutputValue();
         }
         return sum;
@@ -46,8 +65,8 @@ public class Neuron extends DrawableNode<Axon> {
 
     double getErrorSum(){
         double sum = 0;
-        for(Axon axon : this.getLeaving()){
-            sum += axon.getWeightValue() * axon.getDestination().error;
+        for(Axon axon : getLeaving()){
+            sum += axon.getWeightValue() * axon.getDestination().getGradient();
         }
         return sum;
     }
@@ -61,7 +80,16 @@ public class Neuron extends DrawableNode<Axon> {
     }
 
     void clean() {
-        this.error = null;
+        this.gradient = null;
         this.outputValue = null;
+    }
+
+    public Color getColor(){
+        Color sColor = super.getColor();
+        try {
+            return new Color(sColor.getRed(),sColor.getGreen(),sColor.getBlue(),(int)Math.round(outputValue*255));
+        }catch(NullPointerException e){
+            return new Color(sColor.getRed(),sColor.getGreen(),sColor.getBlue(),9);
+        }
     }
 }

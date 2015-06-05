@@ -63,7 +63,7 @@ public class MainWindow extends JFrame {
         super("Neuronal Network Tester");
         this.tester = tester;
 
-        buildMenuBar();
+        //buildMenuBar();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(new GraphViewer(tester.getANN()));

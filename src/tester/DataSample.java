@@ -18,10 +18,6 @@ public class DataSample {
     }
 
 
-    DataSample(ArrayList<Double> characteristics){
-        this.characteristics = characteristics;
-    }
-
     @Override
     public String toString() {
         return characteristics.toString() + "\n";
@@ -31,7 +27,7 @@ public class DataSample {
         return characteristics;
     }
     public ArrayList<Double> getSolutions() {
-        return characteristics;
+        return solutions;
     }
 
     @Override

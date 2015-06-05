@@ -1,6 +1,7 @@
 package tester;
 
 import com.opencsv.CSVReader;
+import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.File;
 import java.io.FileReader;
@@ -19,17 +20,21 @@ public class DataSet {
     private int columns = 0;
 
 
-    DataSet(ArrayList<Double> characteristicsTitles, ArrayList<Double> solutionsTitles){
+    DataSet(ArrayList<String> characteristicsTitles, ArrayList<Double> solutionsTitles){
         dataSample = new ArrayList<DataSample>();
     }
 
 
-    DataSet(ArrayList<Double> caracteristics){
+    DataSet(ArrayList<String> caracteristics){
 
     }
 
-    DataSet(ArrayList<Double> caracteristics, double solution){
+    DataSet(ArrayList<String> caracteristics, double solution){
 
+    }
+
+    public int size(){
+        return dataSample.size();
     }
 
     private void addDataSample(DataSample dataSample){
@@ -42,26 +47,63 @@ public class DataSet {
         String [] nextLine;
         DataSet dataSet = new DataSet(null,null);
         dataSet.columns = columns;
+        int j;
         while ((nextLine = reader.readNext()) != null) {
             ArrayList<Double> characteristics = new ArrayList<Double>();
+            ArrayList<Double> solutions = new ArrayList<Double>();
             // nextLine[] is an array of values from the line
+            j = 0;
             for(String v : nextLine){
                 try {
-                    characteristics.add(Double.parseDouble(v));
+                    if( j < columns){
+                        characteristics.add(Double.parseDouble(v));
+                    }else {
+                        solutions.add(Double.parseDouble(v));
+                    }
                 } catch (NumberFormatException e) {
+                    System.out.println(e);
                 }
+                j++;
             }
-            dataSet.addDataSample(new DataSample(characteristics));
+            dataSet.addDataSample(new DataSample(characteristics,solutions));
         }
+
 
         return dataSet;
 
+    }
+
+    public void normalize() {
+        double min,max,c;
+        for(DataSample s: dataSample){
+            min = s.getCharacteristics().get(0);
+            max = s.getCharacteristics().get(0);
+            for(int i = 0; i < s.getCharacteristics().size();i++){
+                c = s.getCharacteristics().get(i);
+                if(c < min){
+                    min = c;
+                }
+                if( c > max){
+                    max = c;
+                }
+            }
+            if (max == min )continue;
+            for(int i = 0; i < s.getCharacteristics().size();i++) {
+                c = s.getCharacteristics().get(i);
+                s.getCharacteristics().set(i, (c - min) / (max - min));
+
+            }
+        }
     }
 
     public void generateRandomTrainingData(double ratio){
         Collections.shuffle(dataSample, new Random(System.nanoTime()));
         trainingSample = dataSample.subList(0, (int) (ratio * dataSample.size()));
         testSample = dataSample.subList((int)(ratio * dataSample.size()), dataSample.size());
+    }
+
+    public void reShuffleTrainingData(){
+        Collections.shuffle(trainingSample, new Random());
     }
 
     public List<DataSample> getTrainingSample() {

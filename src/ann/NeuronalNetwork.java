@@ -5,6 +5,7 @@ import graph.DrawableGraph;
 import java.util.*;
 
 import tester.DataSample;
+import tester.DataSet;
 import util.Arrays;
 
 /**
@@ -15,22 +16,22 @@ public class NeuronalNetwork extends DrawableGraph<Neuron,Axon> {
     public static NeuronalNetwork FullInterConnectedNN(int[] neuronsPerLayer){
         NeuronalNetwork nn = new NeuronalNetwork();
 
-        int neuronSize = Arrays.max(neuronsPerLayer);
-
-        ArrayList<ArrayList<Neuron>> neurons = new ArrayList<ArrayList<Neuron>>();
-
         int nrOfLayers = neuronsPerLayer.length;
-        double colSize = 1/(double)nrOfLayers, halfColSize = colSize/2;
+        double colSize = 1/(double)(nrOfLayers-1), halfColSize = colSize/2;
         ArrayList<Neuron> currentLayer, lastLayer = new ArrayList<Neuron>();
         Neuron neuron;
-
+        BiasNeuron currentLayerBias;
         for(int j = 0 ; j < nrOfLayers; j++){
             currentLayer = new ArrayList<Neuron>();
 
+
             int nrOfNeuronsInThisLayer = neuronsPerLayer[j];
-            double lineSize = 1/(double)nrOfNeuronsInThisLayer, halfLineSize = lineSize/2;
+            double lineSize = 1/(double)(nrOfNeuronsInThisLayer+( j < nrOfLayers -1 ? 1 : 0) ), halfLineSize = lineSize/2;
+
+            currentLayerBias = new BiasNeuron(nrOfNeuronsInThisLayer * lineSize + halfLineSize, j*colSize);
+
             for(int i = 0; i < nrOfNeuronsInThisLayer; i++){
-                neuron = new Neuron(i*lineSize + halfLineSize,j*colSize + halfColSize);
+                neuron = new Neuron(i*lineSize + halfLineSize,j*colSize);
 
                 if(j > 0 || j < nrOfNeuronsInThisLayer-1){
                     for(int jj = 0 ; jj < lastLayer.size(); jj++){
@@ -38,12 +39,76 @@ public class NeuronalNetwork extends DrawableGraph<Neuron,Axon> {
                     }
                 }
 
+                currentLayer.add(neuron);
+                if(j == 0){
+                    nn.addStartNode(neuron);
+                }else if(j == nrOfLayers -1){
+                    nn.addEndNode(neuron);
+                }else{
+                    nn.addNode(neuron);
+                }
+            }
+            if(j < nrOfLayers-1){
+                currentLayer.add(currentLayerBias);
+                nn.addNode(currentLayerBias);
+            }
+            lastLayer = currentLayer;
+        }
+
+
+
+        return nn;
+    }
+
+
+    public static NeuronalNetwork FullInterConnectedWithDirectFirstLayerNN(int[] neuronsPerLayerPassed){
+        int neuronsPerLayer[] = new int[neuronsPerLayerPassed.length+1];
+        neuronsPerLayer[0] = neuronsPerLayerPassed[0];
+        neuronsPerLayer[1] = neuronsPerLayerPassed[0];
+        for(int i = 2; i < neuronsPerLayer.length;i++){
+            neuronsPerLayer[i] = neuronsPerLayerPassed[i-1];
+        }
+
+        NeuronalNetwork nn = new NeuronalNetwork();
+
+        int nrOfLayers = neuronsPerLayer.length;
+        double colSize = 1/(double)(nrOfLayers-1), halfColSize = colSize/2;
+        ArrayList<Neuron> currentLayer, lastLayer = new ArrayList<Neuron>();
+        Neuron neuron;
+        BiasNeuron currentLayerBias;
+        for(int j = 0 ; j < nrOfLayers; j++){
+            currentLayer = new ArrayList<Neuron>();
+
+
+            int nrOfNeuronsInThisLayer = neuronsPerLayer[j];
+            double lineSize = 1/(double)(nrOfNeuronsInThisLayer+( j < nrOfLayers -1 ? 1 : 0) ), halfLineSize = lineSize/2;
+
+            currentLayerBias = new BiasNeuron(nrOfNeuronsInThisLayer * lineSize + halfLineSize, j*colSize);
+
+            for(int i = 0; i < nrOfNeuronsInThisLayer; i++){
+                neuron = new Neuron(i*lineSize + halfLineSize,j*colSize);
+
+                if(j == 1){
+                        lastLayer.get(i).connectTo(neuron);
+                }else if(j > 1 || j < nrOfNeuronsInThisLayer-1){
+                    for(int jj = 0 ; jj < lastLayer.size(); jj++){
+                        lastLayer.get(jj).connectTo(neuron);
+                    }
+                }
 
                 currentLayer.add(neuron);
-                nn.addNode(neuron);
+                if(j == 0){
+                    nn.addStartNode(neuron);
+                }else if(j == nrOfLayers -1){
+                    nn.addEndNode(neuron);
+                }else{
+                    nn.addNode(neuron);
+                }
             }
-
-            neurons.add(currentLayer);
+            if(j < nrOfLayers-1){
+                currentLayer.add(currentLayerBias);
+                nn.addNode(currentLayerBias);
+            }
             lastLayer = currentLayer;
         }
 
@@ -73,6 +138,9 @@ public class NeuronalNetwork extends DrawableGraph<Neuron,Axon> {
             neuron.backPropagateError();
         }
 
+        for(Neuron neuron : getNodes()){
+            neuron.updateWeights();
+        }
     }
 
 
@@ -93,30 +161,34 @@ public class NeuronalNetwork extends DrawableGraph<Neuron,Axon> {
     }
 
 
-    ArrayList<Double> collectOutputValues(DataSample sample){
+    public ArrayList<Double> collectOutputValues(){
         ArrayList<Double> outputValues = new ArrayList<Double>();
 
         for(Neuron neuron: getEndNodes()){
             outputValues.add(neuron.getOutputValue());
         }
-
         return outputValues;
     }
 
 
-    void learn(DataSample sample){
+    public void learn(DataSample sample){
         feedForward(sample);
         backPropagateError(sample);
     }
 
-    DataSample answer(DataSample sample){
-        feedForward(sample);
-        DataSample ret = sample.clone();
-        collectOutputValues(ret);
-        return ret;
+    public void learn(DataSet set){
+        for(DataSample sample : set.getTrainingSample()){
+            learn(sample);
+        }
     }
 
-    double performanceFunction(){
+    public ArrayList<Double> answer(DataSample sample){
+        feedForward(sample);
+        return collectOutputValues();
+    }
+
+    public static double performanceFunction(){
         return 0;
     }
+
 }

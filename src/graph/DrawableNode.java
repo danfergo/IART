@@ -26,11 +26,6 @@ public abstract class DrawableNode<E extends DrawableEdge> extends Node<E>{
         }
     }
 
-    public double  getSize(){
-        return 1;
-    }
-
-
     public double getX() {
         return x;
     }

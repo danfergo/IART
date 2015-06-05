@@ -18,15 +18,16 @@ public class Graph<N extends Node,E extends Edge> {
     }
 
     public void addEndNode(N node){
-        if(endNodes.indexOf(node) == -1) {
+        if(nodes.indexOf(node) == -1) {
             endNodes.add(node);
+            nodes.add(node);
         }
     }
 
     public void addStartNode(N node){
-        if(startNodes.indexOf(node) == -1) {
+        if(nodes.indexOf(node) == -1) {
             startNodes.add(node);
-            addNode(node);
+            nodes.add(node);
         }
     }
 
